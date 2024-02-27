@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Form
 from pydantic import BaseModel, Field, validator
 from typing import List
-
+from typing import Annotated
 app = FastAPI(debug=True)
 
 fake_user = []
@@ -133,7 +133,29 @@ class Userskz(BaseModel):
             raise ValueError('В пароле длина пароля меньше 12')
 
 
-@app.post('/users')
-def users_kz(users: List[Userskz]):
-    fake_user.extend(users)
-    return {'status': 200, 'data': fake_user}
+# @app.post('/users')
+# def users_kz(users: List[Userskz]):
+#     fake_user.extend(users)
+#     return {'status': 200, 'data': fake_user}
+user = []
+
+@app.post("/login/")
+async def login(
+    name: str = Form(...),
+    surname: str = Form(...),
+    fatherland: str = Form(...),
+    gender: str = Form(...),
+    phone_number: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+):
+    user.append({
+        "name": name,
+        "surname": surname,
+        "fatherland": fatherland,
+        "gender": gender,
+        "phone_number": phone_number,
+        "email": email,
+        "password": password
+    })
+    return {"name": name, "surname": surname, "fatherland": fatherland, "gender": gender, "phone_number": phone_number, "email": email, "password": password}
