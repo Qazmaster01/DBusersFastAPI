@@ -4,12 +4,7 @@ from typing import List
 
 app = FastAPI(debug=True)
 
-fake_user = [
-    # {'id': 1, 'name': 'Nurjan', 'surname': 'Nurjanov', 'patronomic': 'Nurjanuly', 'gender': 'male', 'phone_number': '87772224499', 'email': 'nurjan2000@mail.ru', 'password': '123455'},
-    # {'id': 2, 'name': 'Abai', 'surname': 'Abaiov', 'patronomic': 'Abaiuly', 'gender': 'male', 'phone_number': '87773335566', 'email': 'abai2000@mail.ru', 'password': '345678'},
-    # {'id': 3, 'name': 'Meirlan', 'surname': 'Meirlanov', 'patronomic': 'Meirlaovich', 'gender': 'male', 'phone_number': '87774442211', 'email': 'mairlan2000@mail.ru', 'password': '54342'},
-    # {'id': 4, 'name': 'Askhat', 'surname': 'Askhatov', 'patronomic': 'Aschatovich', 'gender': 'male', 'phone_number': '8666442365', 'email': 'askhat2000@mail.ru', 'password': '432345'},
-]
+fake_user = []
 
 @app.get('/infor')
 def user(limit: int=0, offset: int=0):
@@ -140,12 +135,5 @@ class Userskz(BaseModel):
 
 @app.post('/users')
 def users_kz(users: List[Userskz]):
-    name = data["name"]
-    surname = data["surname"]
-    fatherland = data["fatherland"]
-    gender = data["gender"]
-    phone_number = data["phone_number"]
-    email = data["email"]
-    password = data["password"]
     fake_user.extend(users)
     return {'status': 200, 'data': fake_user}
