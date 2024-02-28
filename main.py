@@ -1,19 +1,33 @@
-from fastapi import FastAPI, Form, Body, HTTPException
-from pydantic import BaseModel, Field, validator
-from typing import List
-from typing import Annotated
+from fastapi import FastAPI, HTTPException
+from models import User
+from pydantic import BaseModel, EmailStr, validator
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from config import DB_USER, DB_PASS, DB_HOST, DB_PORT, DB_NAME
+
 
 app = FastAPI()
 
-new_user = []
+# SQLAlchemy
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
 
-class Userskz(BaseModel):
+
+
+# Pydantic models
+class UserCreate(BaseModel):
     name: str
     surname: str
     fatherland: str
     gender: str
     phone_number: str
-    email: str
+    email: EmailStr
     password: str
 
     @validator("email")
@@ -94,9 +108,11 @@ class Userskz(BaseModel):
                 if i in s:
                     total_s += 1
             if total_N < 3:
-                raise HTTPException(status_code=500, detail='В пароле должно быть не менее 3 символов в верхнем регистре')
+                raise HTTPException(status_code=500,
+                                    detail='В пароле должно быть не менее 3 символов в верхнем регистре')
             if total_e < 6:
-                raise HTTPException(status_code=500, detail='В пароле должно быть не менее 6 символов в нижнем регистре')
+                raise HTTPException(status_code=500,
+                                    detail='В пароле должно быть не менее 6 символов в нижнем регистре')
             if total_n < 3:
                 raise HTTPException(status_code=500, detail='В пароле должно быть не менее 3 цифр')
             if total_s < 1:
@@ -105,44 +121,33 @@ class Userskz(BaseModel):
         else:
             raise HTTPException(status_code=500, detail='Пароль должен содержать не менее 12 символов')
 
-@app.post("/login/")
-async def login(
-    name: str = Form(...),
-    surname: str = Form(...),
-    fatherland: str = Form(...),
-    gender: str = Form(...),
-    phone_number: str = Form(...),
-    email: str = Form(...),
-    password: str = Form(...)
-):
-    try:
-        user = Userskz(
-            name=name,
-            surname=surname,
-            fatherland=fatherland,
-            gender=gender,
-            phone_number=phone_number,
-            email=email,
-            password=password
-        )
-    except HTTPException as a:
-        return {"error": str(a.detail)}
-    else:
-        new_user.append(user)
-        return {'data': new_user}
 
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    surname: str
+    fatherland: str
+    gender: str
+    phone_number: str
+    email: EmailStr
 
+# Routes
+@app.post("/users/", response_model=UserResponse)
+async def create_user(user: UserCreate):
+    db = SessionLocal()
+    db_user = User(**user.dict())
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
-
-
-
-
-
-
-
-
-
-
+@app.get("/users/{user_id}", response_model=UserResponse)
+async def read_user(user_id: int):
+    db = SessionLocal()
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
 
