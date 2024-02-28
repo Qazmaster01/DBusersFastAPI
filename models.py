@@ -1,10 +1,11 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
+from configur import engine
 
 Base = declarative_base()
 
-class User(BaseModel):
-    __tablename__ = 'User'
+class User(Base):
+    __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)

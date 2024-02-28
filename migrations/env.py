@@ -1,15 +1,15 @@
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
 from alembic import context
+
 from config import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
-from models.models import metadata
+from models import Base
 
 # Эта строка импорта может отличаться в зависимости от структуры вашего проекта
 # Убедитесь, что она указывает на правильное местоположение вашей модели
 # Например, если ваша модель находится в файле models.py в корне вашего проекта, строка должна быть такой:
-# from models import metadata
+# from models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -21,16 +21,14 @@ config.set_section_option(section, "DB_PORT", DB_PORT)
 config.set_section_option(section, "DB_USER", DB_USER)
 config.set_section_option(section, "DB_NAME", DB_NAME)
 config.set_section_option(section, "DB_PASS", DB_PASS)
+
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-if config.config_file_name is not None:
+if config.config_file_name:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = metadata
+# 'alembic' needs to know about our models, so we pass it our Base.
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
