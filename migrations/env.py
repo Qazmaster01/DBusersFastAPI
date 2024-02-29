@@ -3,8 +3,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
 
-from config import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
-from models import Base
+from src.crud.config import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
+from src.crud.models import Base
 
 # Эта строка импорта может отличаться в зависимости от структуры вашего проекта
 # Убедитесь, что она указывает на правильное местоположение вашей модели
