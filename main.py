@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from hashing import Hasher
 from models import User
 from pydantic import BaseModel, EmailStr, validator
 from sqlalchemy import create_engine, Column, Integer, String
@@ -135,7 +136,16 @@ class UserResponse(BaseModel):
 @app.post("/users/", response_model=UserResponse)
 async def create_user(user: UserCreate):
     db = SessionLocal()
-    db_user = User(**user.dict())
+    # db_user = User(**user.dict())
+    db_user = User(
+        name = user.name,
+        surname = user.surname,
+        fatherland = user.fatherland,
+        gender = user.gender,
+        phone_number = user.phone_number,
+        email = user.email,
+        password = Hasher.get_password_hash(user.password)
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
